@@ -103,7 +103,11 @@
                 },
             });
             const data = await res.json();
-            console.log(data);
+            if(data.error) {
+                alert(data.error);
+                return;
+            }
+            
             const urlResult = `${window.location}${data.id}`;
             
             const urlEl = document.getElementById('shortUrl');

@@ -1,4 +1,5 @@
 const express = require('express');
+const { URL, parse } = require('url');
 require('dotenv').config();
 const morgan = require('morgan');
 const { nanoid } = require('nanoid');
@@ -23,17 +24,21 @@ app.post('/create', async (req, res, next) => {
     const url = req.body.url;
     let id = req.body.id;
     if(url) {
-        if(id === undefined || id === null || id === '') {
-            id = nanoid(6);
-        }
-        const model = new ShortModel({url, id});
-        try {
-            await model.save();
-            res.json(model);
-        }
-        catch(err) {
-            console.log(err);
-            res.status(500).json({error: err.message});
+        if(stringIsAValidUrl(url, ['http', 'https'])) {
+            if(id === undefined || id === null || id === '') {
+                id = nanoid(6);
+            }
+            const model = new ShortModel({url, id});
+            try {
+                await model.save();
+                res.json(model);
+            }
+            catch(err) {
+                console.log(err);
+                res.status(500).json({error: err.message});
+            }
+        } else {
+            res.status(400).json({error: `invalid url: ${url}`});
         }
     }
     else {
@@ -71,6 +76,21 @@ app.get('/:id/info', async (req, res, next) => {
         res.status(400).json({message: 'Redirect to url'});
     }
 });
+
+
+const stringIsAValidUrl = (s, protocols) => {
+    try {
+        new URL(s);
+        const parsed = parse(s);
+        return protocols
+            ? parsed.protocol
+                ? protocols.map(x => `${x.toLowerCase()}:`).includes(parsed.protocol)
+                : false
+            : true;
+    } catch (err) {
+        return false;
+    }
+};
 
 const port = process.env.PORT;
 app.listen(port, () => {
