@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NazgulMX URL Shortener</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"> 
+    <style>
+        * {
+            font-family: 'Roboto', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        h1 {
+            font-size: 1rem;
+            text-align: center;
+        }
+        html {
+            font-size: 2rem;
+        }
+        body {
+            padding: 0;
+            background-color: #444;
+            color: #DDD;
+            max-width: 80%;
+            margin: 0 auto;
+        }
+        label {
+            display: block;
+            font-size: 0.8rem;
+        }
+        input {
+            width: 100%;
+            height: 2rem;
+            outline: none;
+            background-color: #777;
+            border: 1px solid;
+            border-radius: 5px;
+            font-size: 0.6rem;
+            padding: 0 0.5rem;
+        }
+        button {
+            padding: 0.5rem 1rem;
+            background-color: #999;
+            border: 1px solid;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #AAA;
+        }
+        .righty {
+            display: flex;
+            justify-content: center;
+        }
+        .form-field {
+            margin-top: 1rem;
+        }
+        .hide {
+            display: none;
+        }
+        .animation {
+            transition: all 0.2s;
+        }
+        .copied {
+            background-color: #AAA;
+        }
+    </style>
+    <!-- <link rel="stylesheet" href="./public/style.css">
+    <script src="./public/main.js"></script> -->
+</head>
+<body>
+    <h1>NazgulMX - URL Shortener</h1>
+    <form id="create">
+        <div class="form-field">
+            <label>URL</label>
+            <input name="url" placeholder="URL" />
+        </div>
+        <div class="form-field">
+            <label>Short ID</label>
+            <input name="id" placeholder="optional" />
+        </div>
+        <div class="righty form-field">
+            <button>Create</button>
+        </div>
+    </form>
+    <div class="form-field">
+        <input class="hide animation" id="shortUrl" readonly />
+    </div>
+    <script>
+        const form = document.getElementById('create');
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const url = form.elements['url'].value;
+            const id = form.elements['id'].value;
+            const res = await fetch('/create', {
+                method: 'POST',
+                body: JSON.stringify({
+                    url,
+                    id
+                }),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+            });
+            const data = await res.json();
+            console.log(data);
+            const urlResult = `${window.location}${data.id}`;
+            
+            const urlEl = document.getElementById('shortUrl');
+            urlEl.value = urlResult;
+            urlEl.classList.remove('hide');
+        });
+        const urlEl = document.getElementById('shortUrl');
+        urlEl.addEventListener('click', (event) => {
+            urlEl.select();
+            urlEl.setSelectionRange(0, 99999); /*For mobile devices*/
+            document.execCommand("copy");
+            urlEl.classList.add('copied');
+            setTimeout(() => {
+                urlEl.classList.remove('copied');
+            }, 600);
+        });
+    </script>
+</body>
+</html>
