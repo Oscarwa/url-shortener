@@ -11,7 +11,6 @@ const ShortModel = require('./model');
 const app = express();
 app.use(morgan('dev'));
 app.use(express.json());
-//console.log('path', path.join(__dirname, 'public'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res, next) => {
@@ -24,8 +23,6 @@ app.post('/create', async (req, res, next) => {
     const url = req.body.url;
     let id = req.body.id;
     if(url) {
-        console.log('id',id);
-        console.log('nanoid',nanoid(6));
         if(id === undefined || id === null || id === '') {
             id = nanoid(6);
         }
